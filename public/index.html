@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NOTEFLOW · Video to PDF Notes Studio</title>
+  
+  <!-- Fonts: Plus Jakarta Sans for Display, JetBrains Mono for Tech / Studio details, Kalam & Caveat for Handwritten Notebook, Playfair Display for Editorial script -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Caveat:wght@500;600;700&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Kalam:wght@400;700&family=Playfair+Display:ital,wght@1,400;1,600;1,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  
+  <!-- CSS Styles -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Local Vendor Scripts -->
+  <script src="/vendor/three.min.js"></script>
+  <script src="/vendor/marked.min.js"></script>
+  <script src="/vendor/mermaid.min.js"></script>
+</head>
+<body>
+  <!-- 3D WebGL Orbital Canvas Background (Three.js) -->
+  <div class="webgl-container" id="webglContainer" aria-hidden="true">
+    <canvas id="orbitalCanvas"></canvas>
+    <div class="cosmic-dust-overlay"></div>
+    <div class="grid-backdrop"></div>
+  </div>
+
+  <!-- Studio Minimalist Header (Seamlessly blends into the background) -->
+  <header class="studio-header">
+    <div class="header-inner">
+      <!-- Brand Wordmark -->
+      <div class="brand-group" id="brandHomeBtn" style="cursor: pointer;" title="Back to Overview">
+        <div class="brand-orbital-icon">
+          <span class="orbital-ring ring-1"></span>
+          <span class="orbital-ring ring-2"></span>
+          <span class="orbital-core"></span>
+        </div>
+        <div class="brand-title-wrap">
+          <div class="brand-name">
+            NOTEFLOW <sup class="brand-reg">®</sup>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center Minimalist Navigation Links -->
+      <nav class="dock-navigation" aria-label="Page Navigation">
+        <div class="dock-pill-track" id="dockTrack">
+          <span class="dock-sliding-pill" id="dockSlidingPill"></span>
+
+          <button class="dock-tab-btn active" data-target="page-overview">
+            <span class="dock-label">Overview</span>
+          </button>
+
+          <button class="dock-tab-btn" data-target="page-synthesizer">
+            <span class="dock-label">Synthesizer</span>
+          </button>
+
+          <button class="dock-tab-btn" data-target="page-notes" id="dockBtnNotes">
+            <span class="dock-label">Study Notes</span>
+          </button>
+
+          <button class="dock-tab-btn" data-target="page-telemetry">
+            <span class="dock-label">Telemetry</span>
+          </button>
+
+          <button class="dock-tab-btn" data-target="page-config">
+            <span class="dock-label">Config</span>
+          </button>
+        </div>
+      </nav>
+
+      <!-- Right Controls: Language & Synthesizer Launch -->
+      <div class="header-controls">
+        <div class="lang-switch-capsule" title="Select UI Language / भाषा चुनें">
+          <button type="button" class="lang-pill-btn active" data-lang="en" id="btnLangEn">EN</button>
+          <span class="lang-sep">/</span>
+          <button type="button" class="lang-pill-btn" data-lang="hi" id="btnLangHi">HI</button>
+        </div>
+
+        <button class="header-cta-btn" id="headerSynthesizerBtn" title="Launch Synthesizer">
+          <span>Synthesizer</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="7" y1="17" x2="17" y2="7"></line>
+            <polyline points="7 7 17 7 17 17"></polyline>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- Multi-Page Viewport Container -->
+    <main class="page-viewport" id="pageViewport">
+      
+      <!-- ===================================================================
+           PAGE 1: OVERVIEW (Studio Showcase & Entrance)
+           =================================================================== -->
+      <section class="page-view active" id="page-overview">
+        <!-- Otherspace Editorial Hero Stage (Image 2 Reference) -->
+        <div class="otherspace-hero-stage">
+          <div class="otherspace-hero-content">
+            <div class="otherspace-kicker" data-i18n="hero_pill">AUTONOMOUS AI LECTURE ARCHITECT · NOTEFLOW ENGINE</div>
+
+            <h1 class="otherspace-hero-title">
+              Learn beyond<br>
+              watching.<br>
+              <span class="otherspace-cursive">noteflow.</span>
+            </h1>
+
+            <div class="otherspace-hero-tagline" id="heroHeading">
+              Turn any Video Link into <span class="text-white-highlight">Downloadable PDF Study Notes</span>
+            </div>
+
+            <p class="otherspace-hero-desc" data-i18n="hero_desc">
+              Paste any YouTube video link. Our AI extracts captions and audio to generate structured, comprehensive, and revision-ready PDF study notes in seconds.
+            </p>
+
+            <div class="otherspace-cta-wrap">
+              <button class="otherspace-circle-cta" id="overviewLaunchBtn" title="Launch Synthesizer">
+                <span class="cta-circle-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="7" y1="17" x2="17" y2="7"></line>
+                    <polyline points="7 7 17 7 17 17"></polyline>
+                  </svg>
+                </span>
+                <span class="cta-circle-label">Enter Synthesizer</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Otherspace Telemetry Bottom Bar (Image 2 Match) -->
+        <div class="otherspace-bottom-bar">
+          <div class="bottom-bar-left">
+            <span class="bar-tag">EXPERIMENT 001</span>
+            <span class="bar-sep">/</span>
+            <span class="bar-name">NOTEFLOW ENGINE</span>
+          </div>
+
+          <button class="bottom-bar-center" id="overviewScrollBtn" title="Discover Synthesizer">
+            <span class="scroll-text">SCROLL TO DISCOVER</span>
+            <span class="scroll-arrow">⌄</span>
+          </button>
+
+          <div class="bottom-bar-right">
+            <span class="page-counter">01 — 05</span>
+            <span class="pause-icon">||</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           PAGE 2: SYNTHESIZER (The Orbital Input Console)
+           =================================================================== -->
+      <section class="page-view" id="page-synthesizer">
+        <div class="page-header-strip">
+          <div class="page-meta-badge">[ 02 // INPUT_CONSOLE ]</div>
+          <h2 class="page-section-title">Video Stream Synthesizer</h2>
+          <p class="page-section-desc">Paste your YouTube video URL or custom lecture script to compile downloadable study notes.</p>
+        </div>
+
+        <!-- The Orbital Control Deck -->
+        <div class="orbital-deck card-glassmorphism">
+          <div class="deck-bracket top-left">+</div>
+          <div class="deck-bracket top-right">+</div>
+          <div class="deck-bracket bottom-left">+</div>
+          <div class="deck-bracket bottom-right">+</div>
+
+          <!-- Deck Tabs -->
+          <div class="deck-tabs-nav">
+            <button class="deck-tab active" data-tab="tab-url">
+              <span class="tab-indicator"></span>
+              <span class="tab-label" data-i18n="tab_url">YouTube Video Stream</span>
+              <span class="tab-code">[ URL ]</span>
+            </button>
+            <button class="deck-tab" data-tab="tab-manual">
+              <span class="tab-indicator"></span>
+              <span class="tab-label" data-i18n="tab_manual">Custom Script / Text</span>
+              <span class="tab-code">[ RAW ]</span>
+            </button>
+          </div>
+
+          <!-- Tab 1: Video URL -->
+          <div id="tab-url" class="tab-panel active">
+            <div class="input-command-bar">
+              <div class="input-field-container">
+                <span class="input-prompt-symbol">&gt;_</span>
+                <input 
+                  type="text" 
+                  id="videoUrlInput" 
+                  placeholder="Paste YouTube link here (e.g. https://www.youtube.com/watch?v=...)" 
+                  data-i18n-placeholder="url_placeholder"
+                  autocomplete="off"
+                  spellcheck="false"
+                >
+                <button id="pasteBtn" class="deck-icon-btn" title="Paste from Clipboard">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                  </svg>
+                </button>
+                <button id="clearBtn" class="deck-icon-btn hidden" title="Clear input">
+                  ✕
+                </button>
+              </div>
+
+              <!-- Generate Button -->
+              <button id="generateBtn" class="btn-orbital-glow">
+                <span class="btn-glow-back"></span>
+                <span class="btn-content">
+                  <span class="btn-text" data-i18n="btn_generate">Generate Notes 🚀</span>
+                  <span class="btn-spinner hidden"></span>
+                </span>
+              </button>
+            </div>
+
+            <!-- Quick Stream Demo Section inside Synthesizer -->
+            <div class="demo-launcher-bar card-glassmorphism">
+              <div class="demo-launcher-left">
+                <span class="demo-tag">[ QUICK_DEMO_LAUNCHPAD ]</span>
+                <span class="demo-heading">Click any sample stream to test instant notes:</span>
+              </div>
+              <div class="demo-chips-group">
+                <button class="demo-chip-btn" data-url="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
+                  <span class="chip-index">01</span>
+                  <span class="chip-title" data-i18n="demo_1">Music / Song</span>
+                </button>
+                <button class="demo-chip-btn" data-url="https://www.youtube.com/watch?v=aircAruvnKk">
+                  <span class="chip-index">02</span>
+                  <span class="chip-title" data-i18n="demo_2">3Blue1Brown Neural Nets</span>
+                </button>
+                <button class="demo-chip-btn" data-url="https://www.youtube.com/watch?v=kJQP7kiw5Fk">
+                  <span class="chip-index">03</span>
+                  <span class="chip-title" data-i18n="demo_3">CS Programming Tutorial</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 2: Manual Script -->
+          <div id="tab-manual" class="tab-panel">
+            <div class="manual-script-deck">
+              <input 
+                type="text" 
+                id="manualTitle" 
+                placeholder="Video / Topic Title (optional)" 
+                data-i18n-placeholder="manual_title_placeholder"
+                class="script-input-title"
+              >
+              <textarea 
+                id="manualTextInput" 
+                placeholder="If subtitles are unavailable or you have your own lecture transcript/script, paste it here..." 
+                data-i18n-placeholder="manual_text_placeholder"
+                rows="6" 
+                class="script-input-body"
+              ></textarea>
+              <div class="manual-actions-row">
+                <button id="generateManualBtn" class="btn-orbital-glow">
+                  <span class="btn-glow-back"></span>
+                  <span class="btn-content">
+                    <span class="btn-text" data-i18n="btn_generate_manual">Generate from Script 🚀</span>
+                    <span class="btn-spinner hidden"></span>
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bento Customization Controls -->
+          <div class="bento-controls-row">
+            <div class="bento-cell">
+              <label for="noteStyle" class="bento-label" data-i18n="opt_style">Notes Style</label>
+              <div class="select-wrapper">
+                <select id="noteStyle" class="bento-select">
+                  <option value="comprehensive" selected data-i18n="opt_style_comp">📚 Comprehensive Study Notes</option>
+                  <option value="summary" data-i18n="opt_style_summary">⚡ Executive Summary & Highlights</option>
+                  <option value="cheatsheet" data-i18n="opt_style_cheat">📝 Revision Cheat Sheet (Quick Bullets)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="bento-cell">
+              <label for="noteLang" class="bento-label" data-i18n="opt_lang">Notes Language</label>
+              <div class="select-wrapper">
+                <select id="noteLang" class="bento-select">
+                  <option value="en" selected data-i18n="opt_lang_en">🇬🇧 English (Default)</option>
+                  <option value="hi" data-i18n="opt_lang_hi">🇮🇳 हिन्दी (Hindi)</option>
+                  <option value="hinglish" data-i18n="opt_lang_hinglish">🇮🇳 Hinglish (Casual)</option>
+                  <option value="auto" data-i18n="opt_lang_auto">🌐 Auto (Match Video)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="bento-cell">
+              <label for="aiProvider" class="bento-label" data-i18n="opt_engine">AI Synthesis Engine</label>
+              <div class="select-wrapper">
+                <select id="aiProvider" class="bento-select">
+                  <option value="builtin" selected data-i18n="opt_engine_builtin">⚡ Smart Built-in Engine (Free & Instant)</option>
+                  <option value="gemini" data-i18n="opt_engine_gemini">🧠 Google Gemini API (Deep Analysis)</option>
+                  <option value="groq" data-i18n="opt_engine_groq">🚀 Groq Llama-3.3 (Ultra Fast)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Telemetry Progress Pipeline (During Generation) -->
+        <div id="progressSection" class="telemetry-pipeline-card card-glassmorphism hidden">
+          <div class="pipeline-scanner-line"></div>
+          <div class="pipeline-header">
+            <div class="pipeline-radar-beacon">
+              <div class="beacon-pulse"></div>
+              <div class="beacon-dot"></div>
+            </div>
+            <div class="pipeline-titles">
+              <h3 id="progressTitle" class="pipeline-h3">Synthesizing Orbital Stream...</h3>
+              <p id="progressSub" class="pipeline-sub">Extracting audio frequency & transcript tokens...</p>
+            </div>
+          </div>
+
+          <div class="stepper-grid">
+            <div class="stepper-node active" id="step1">
+              <div class="node-badge">01</div>
+              <div class="node-meta">
+                <span class="node-title" data-i18n="step1_title">Signal Fetch</span>
+                <span class="node-state">ACTIVE</span>
+              </div>
+            </div>
+            <div class="stepper-line" id="line1"></div>
+
+            <div class="stepper-node" id="step2">
+              <div class="node-badge">02</div>
+              <div class="node-meta">
+                <span class="node-title" data-i18n="step2_title">Captions Extract</span>
+                <span class="node-state">PENDING</span>
+              </div>
+            </div>
+            <div class="stepper-line" id="line2"></div>
+
+            <div class="stepper-node" id="step3">
+              <div class="node-badge">03</div>
+              <div class="node-meta">
+                <span class="node-title" data-i18n="step3_title">AI Synthesis</span>
+                <span class="node-state">PENDING</span>
+              </div>
+            </div>
+            <div class="stepper-line" id="line3"></div>
+
+            <div class="stepper-node" id="step4">
+              <div class="node-badge">04</div>
+              <div class="node-meta">
+                <span class="node-title" data-i18n="step4_title">PDF Compiled</span>
+                <span class="node-state">PENDING</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error Card -->
+        <div id="errorCard" class="terminal-error-card card-glassmorphism hidden">
+          <div class="error-bracket">!</div>
+          <div class="error-content">
+            <div class="error-tag">[ ERROR // SIGNAL_LOST ]</div>
+            <h4 id="errorTitle" class="error-title">Transcription Failed</h4>
+            <p id="errorMessage" class="error-desc"></p>
+            <div id="errorActions" class="error-actions-deck"></div>
+          </div>
+        </div>
+
+        <!-- Telemetry Bottom Bar (Page 2) -->
+        <div class="otherspace-bottom-bar">
+          <div class="bottom-bar-left">
+            <span class="bar-tag">EXPERIMENT 002</span>
+            <span class="bar-sep">/</span>
+            <span class="bar-name">SYNTHESIZER CONSOLE</span>
+          </div>
+
+          <button class="bottom-bar-center" id="synthesizerScrollBtn" title="Discover Study Notes">
+            <span class="scroll-text">SCROLL TO DISCOVER</span>
+            <span class="scroll-arrow">⌄</span>
+          </button>
+
+          <div class="bottom-bar-right">
+            <span class="page-counter">02 — 05</span>
+            <span class="pause-icon">||</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           PAGE 3: STUDY NOTES (Compiled Document & PDF Export Deck)
+           =================================================================== -->
+      <section class="page-view" id="page-notes">
+        <!-- Empty State Prompt (shown when no notes are generated yet) -->
+        <div id="notesEmptyState" class="empty-state-card card-glassmorphism">
+          <div class="empty-icon-radar">
+            <span class="empty-glyph">📄</span>
+            <div class="radar-circle circle-1"></div>
+            <div class="radar-circle circle-2"></div>
+          </div>
+          <div class="empty-tag">[ 03 // STUDY_NOTES · IDLE ]</div>
+          <h2 class="empty-title">No Study Notes Generated Yet</h2>
+          <p class="empty-desc">Open the Synthesizer console, paste any YouTube video link, and click Generate Notes to compile your structured study document.</p>
+          <button class="btn-orbital-glow" id="emptyStateLaunchBtn" style="margin-top: 18px;">
+            <span class="btn-glow-back"></span>
+            <span class="btn-content">
+              <span>Launch Synthesizer 🚀</span>
+            </span>
+          </button>
+        </div>
+
+        <!-- Compiled Results View (shown when notes exist) -->
+        <div id="resultsSection" class="results-deck hidden">
+          <!-- Video Stream Info Card -->
+          <div class="video-intel-card card-glassmorphism">
+            <div class="video-media-wrap">
+              <img id="videoThumb" src="" alt="Thumbnail" class="intel-thumb">
+              <div class="thumb-corner-glow"></div>
+            </div>
+            <div class="video-intel-details">
+              <div class="intel-kicker">
+                <span class="intel-pill" data-i18n="badge_processed">VIDEO SOURCE</span>
+                <span id="engineBadge" class="intel-engine-pill">⚡ BUILT-IN ENGINE</span>
+              </div>
+              <h2 id="videoTitle" class="intel-title">Video Title</h2>
+              <div class="intel-meta-strip">
+                <span id="videoAuthor" class="meta-item author">Channel</span>
+                <span class="meta-separator">•</span>
+                <span id="videoWords" class="meta-item">0 words</span>
+                <span class="meta-separator">•</span>
+                <span id="videoDuration" class="meta-item">00:00</span>
+              </div>
+              <a id="videoLink" href="#" target="_blank" rel="noopener noreferrer" class="meta-ext-link">
+                <span data-i18n="video_source">Watch Original Stream ↗</span>
+              </a>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="intel-action-buttons">
+              <button id="downloadPdfBtn" class="action-btn-primary" title="Download High-Res PDF">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span data-i18n="btn_download_pdf">Download PDF</span>
+              </button>
+
+              <button id="printPdfBtn" class="action-btn-ghost" title="Save as Vector PDF via Print">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                  <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                  <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+                <span data-i18n="btn_print">Print</span>
+              </button>
+
+              <button id="copyNotesBtn" class="action-btn-ghost" title="Copy formatted markdown">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span data-i18n="btn_copy">Copy</span>
+              </button>
+
+              <button id="downloadMdBtn" class="action-btn-ghost" title="Download Markdown .md">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="12" y1="18" x2="12" y2="12"></line>
+                  <line x1="9" y1="15" x2="15" y2="15"></line>
+                </svg>
+                <span data-i18n="btn_markdown">Markdown</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Document Sheet -->
+          <div class="notes-document-card card-glassmorphism">
+            <div class="notes-deck-header">
+              <div class="notes-header-left">
+                <span class="doc-code-tag">[ DOC.NOTES // COMPILED ]</span>
+                <span class="notes-status-text" data-i18n="notes_status">Compiled & ready for export</span>
+              </div>
+              <div class="notes-header-right" style="display: flex; align-items: center; gap: 8px;">
+                <!-- Notebook Visual Style Toggle -->
+                <div class="notebook-style-toggle-group">
+                  <button type="button" class="btn-style-pill active" id="btnNotebookMode" title="Handwritten Notebook with Post-its & Flowcharts">
+                    <span>📓 Handwritten Notebook</span>
+                  </button>
+                  <button type="button" class="btn-style-pill" id="btnCyberMode" title="Clean Cyber Studio Theme">
+                    <span>🖥️ Studio Clean</span>
+                  </button>
+                </div>
+
+                <button id="toggleEditBtn" class="btn-ghost-micro" data-i18n="btn_edit_notes">
+                  ✏️ Edit Notes
+                </button>
+              </div>
+            </div>
+
+            <div id="notesDocument" class="notes-document-sheet notebook-mode">
+              <!-- Notebook Spiral Binder Header / Spine -->
+              <div class="notebook-spiral-spine">
+                <span class="spiral-hole"></span>
+                <span class="spiral-hole"></span>
+                <span class="spiral-hole"></span>
+                <span class="spiral-hole"></span>
+                <span class="spiral-hole"></span>
+                <span class="spiral-hole"></span>
+                <span class="spiral-hole"></span>
+                <span class="spiral-hole"></span>
+              </div>
+              <div id="renderedContent" class="markdown-body"></div>
+              <textarea id="editNotesArea" class="notes-editor hidden" rows="28" spellcheck="false"></textarea>
+            </div>
+          </div>
+
+          <!-- Collapsible Subtitles Terminal -->
+          <div class="transcript-terminal-card card-glassmorphism">
+            <div class="terminal-toggle" id="transcriptToggle">
+              <div class="terminal-title">
+                <span class="terminal-chevron">&gt;</span>
+                <span data-i18n="transcript_accordion">Inspect Raw Captions & Timestamps Telemetry</span>
+              </div>
+              <span class="terminal-arrow">▼</span>
+            </div>
+            <div id="transcriptBody" class="terminal-body hidden">
+              <div id="transcriptList" class="transcript-stream-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Telemetry Bottom Bar (Page 3) -->
+        <div class="otherspace-bottom-bar">
+          <div class="bottom-bar-left">
+            <span class="bar-tag">EXPERIMENT 003</span>
+            <span class="bar-sep">/</span>
+            <span class="bar-name">VECTOR STUDY NOTES</span>
+          </div>
+
+          <button class="bottom-bar-center" id="notesScrollBtn" title="Discover Telemetry">
+            <span class="scroll-text">SCROLL TO DISCOVER</span>
+            <span class="scroll-arrow">⌄</span>
+          </button>
+
+          <div class="bottom-bar-right">
+            <span class="page-counter">03 — 05</span>
+            <span class="pause-icon">||</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           PAGE 4: TELEMETRY (System Architecture & Benchmarks)
+           =================================================================== -->
+      <section class="page-view" id="page-telemetry">
+        <div class="page-header-strip">
+          <div class="page-meta-badge">[ 04 // SYSTEM_SPECS ]</div>
+          <h2 class="page-section-title">Telemetry & Pipeline Architecture</h2>
+          <p class="page-section-desc">Real-time diagnostics, audio token processing rates, and vector rendering benchmarks.</p>
+        </div>
+
+        <div class="telemetry-dashboard-grid">
+          <!-- Metric 1 -->
+          <div class="metric-card card-glassmorphism">
+            <div class="metric-label">AUDIO SAMPLING STREAM</div>
+            <div class="metric-value">48.0 <span class="metric-unit">kHz</span></div>
+            <div class="metric-bar"><span class="bar-fill" style="width: 88%;"></span></div>
+            <div class="metric-footer">PCM Stereo Stream Audio</div>
+          </div>
+
+          <!-- Metric 2 -->
+          <div class="metric-card card-glassmorphism">
+            <div class="metric-label">SYNTHESIS THROUGHPUT</div>
+            <div class="metric-value">~14,200 <span class="metric-unit">wpm</span></div>
+            <div class="metric-bar"><span class="bar-fill" style="width: 95%;"></span></div>
+            <div class="metric-footer">Extractive NLP & Translation Engine</div>
+          </div>
+
+          <!-- Metric 3 -->
+          <div class="metric-card card-glassmorphism">
+            <div class="metric-label">PDF VECTOR COMPILATION</div>
+            <div class="metric-value">&lt; 0.4 <span class="metric-unit">sec</span></div>
+            <div class="metric-bar"><span class="bar-fill" style="width: 98%;"></span></div>
+            <div class="metric-footer">PDFKit Vector Rendering Pipeline</div>
+          </div>
+
+          <!-- Metric 4 -->
+          <div class="metric-card card-glassmorphism">
+            <div class="metric-label">3D ORBITAL CANVAS PARTICLES</div>
+            <div class="metric-value">12,000 <span class="metric-unit">pts</span></div>
+            <div class="metric-bar"><span class="bar-fill" style="width: 92%;"></span></div>
+            <div class="metric-footer">WebGL 60 FPS Additive Mesh</div>
+          </div>
+        </div>
+
+        <!-- Pipeline Flow Graphic -->
+        <div class="pipeline-schematic-card card-glassmorphism">
+          <div class="schematic-header">
+            <span class="schematic-tag">[ DATA_FLOW // AUTONOMOUS_PIPELINE ]</span>
+            <span class="schematic-status">LIVE TELEMETRY</span>
+          </div>
+
+          <div class="flow-steps-visual">
+            <div class="flow-step-box">
+              <span class="step-num">STEP 01</span>
+              <h4>YouTube Video URL</h4>
+              <p>oEmbed metadata extraction (Title, Channel, HQ Thumbnail)</p>
+            </div>
+            <div class="flow-arrow">→</div>
+
+            <div class="flow-step-box">
+              <span class="step-num">STEP 02</span>
+              <h4>Captions & Timestamps</h4>
+              <p>XML transcript chunking & 30-sec chapter grouping</p>
+            </div>
+            <div class="flow-arrow">→</div>
+
+            <div class="flow-step-box">
+              <span class="step-num">STEP 03</span>
+              <h4>AI / Translation Core</h4>
+              <p>English-by-default synthesis, highlights, & revision quiz</p>
+            </div>
+            <div class="flow-arrow">→</div>
+
+            <div class="flow-step-box">
+              <span class="step-num">STEP 04</span>
+              <h4>PDFKit Vector Engine</h4>
+              <p>Pagination, headers, footers, & clickable timeline links</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Telemetry Bottom Bar (Page 4) -->
+        <div class="otherspace-bottom-bar">
+          <div class="bottom-bar-left">
+            <span class="bar-tag">EXPERIMENT 004</span>
+            <span class="bar-sep">/</span>
+            <span class="bar-name">SYSTEM TELEMETRY</span>
+          </div>
+
+          <button class="bottom-bar-center" id="telemetryScrollBtn" title="Discover Configuration">
+            <span class="scroll-text">SCROLL TO DISCOVER</span>
+            <span class="scroll-arrow">⌄</span>
+          </button>
+
+          <div class="bottom-bar-right">
+            <span class="page-counter">04 — 05</span>
+            <span class="pause-icon">||</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           PAGE 5: CONFIG (Settings & API Keys)
+           =================================================================== -->
+      <section class="page-view" id="page-config">
+        <div class="page-header-strip">
+          <div class="page-meta-badge">[ 05 // CONFIGURATION ]</div>
+          <h2 class="page-section-title">Engine Configuration & API Keys</h2>
+          <p class="page-section-desc">Configure external intelligence engines (Google Gemini, Groq) or keep using the 100% free built-in engine.</p>
+        </div>
+
+        <div class="config-deck card-glassmorphism">
+          <div class="deck-bracket top-left">+</div>
+          <div class="deck-bracket top-right">+</div>
+          <div class="deck-bracket bottom-left">+</div>
+          <div class="deck-bracket bottom-right">+</div>
+
+          <p class="modal-info" data-i18n="settings_desc">
+            By default, the <strong>Smart Built-in Engine</strong> runs 100% free with no API keys required. If you prefer deeper synthesis with Google Gemini or Groq, you can optionally provide your free API key below.
+          </p>
+
+          <div class="form-group" style="margin-bottom: 22px;">
+            <label for="geminiApiKey" data-i18n="settings_gemini_label">Google Gemini API Key (Free tier):</label>
+            <input type="password" id="geminiApiKey" class="input-cyber" placeholder="AIzaSy...">
+            <small class="form-hint">
+              Get free key from: <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio ↗</a>
+            </small>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 26px;">
+            <label for="groqApiKey" data-i18n="settings_groq_label">Groq API Key (Llama 3.3):</label>
+            <input type="password" id="groqApiKey" class="input-cyber" placeholder="gsk_...">
+            <small class="form-hint">
+              Get free key from: <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq Console ↗</a>
+            </small>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end;">
+            <button id="saveSettingsBtn" class="btn-orbital-glow" style="height: 48px; padding: 0 24px;">
+              <span class="btn-glow-back"></span>
+              <span class="btn-content" data-i18n="settings_save">Save Settings 💾</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Telemetry Bottom Bar (Page 5 - Return to Beginning) -->
+        <div class="otherspace-bottom-bar">
+          <div class="bottom-bar-left">
+            <span class="bar-tag">EXPERIMENT 005</span>
+            <span class="bar-sep">/</span>
+            <span class="bar-name">NOTEFLOW CONFIGURATION</span>
+          </div>
+
+          <button class="bottom-bar-center bottom-bar-return" id="configBackToTopBtn" title="Back to Beginning">
+            <span class="scroll-arrow rotate-up">⌃</span>
+            <span class="scroll-text">BACK TO BEGINNING</span>
+          </button>
+
+          <div class="bottom-bar-right">
+            <span class="page-counter">05 — 05</span>
+            <span class="pause-icon">||</span>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
+  </div>
+
+  <!-- Client Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
